@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace PizzaShop.Entity.Models;
+
+public partial class City
+{
+    public int CityId { get; set; }
+
+    public int? StateId { get; set; }
+
+    public string CityName { get; set; } = null!;
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? ModifiedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? ModifiedBy { get; set; }
+
+    public virtual State? State { get; set; }
+
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
+}
