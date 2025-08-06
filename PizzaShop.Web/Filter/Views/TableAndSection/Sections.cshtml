@@ -1,0 +1,257 @@
+@{
+    ViewData["Title"] = "Table and Section Page";
+}
+@model PizzaShop.Entity.ViewModel.SectionsViewModel
+<style>
+    .list-section-item-action #sectionBtn {
+        visibility: hidden;
+    }
+
+    .list-section-item-action {
+        cursor: pointer;
+        font: 1.2em sans-serif;
+    }
+
+    .list-section-item-action:hover {
+        background-color: rgba(44, 51, 51, 0.157);
+        transition: all 0.8s ease-in-out;
+    }
+
+    .active {
+        background-color: rgba(40, 46, 46, 0.157);
+        color: #0F67B1;
+        font-weight: 500;
+    }
+
+    .active #sectionBtn {
+        visibility: visible;
+    }
+
+    .active #sectionBtn button {
+        color: #0F67B1;
+    }
+</style>
+<div>
+    <h1 class="text-primary fw-bold ms-2">Sections/Table</h1>
+    <div class="row m-3">
+        <div class=" d-block  rounded col-lg-3 col-md-12  bg-white"> <!-- style="width: 240px;" -->
+            <div class=" pt-2 d-flex align-items-center justify-content-center mx-4 mb-2">
+                <h4 id="category-header">Sections</h4>
+                @if((bool)Context.Items["CanAddEdit"]){
+                <a class="btn blue-outline d-flex align-items-center" id="AddSectionForSection"
+                    data-bs-target="#staticBackdrop" data-bs-toggle="modal">
+                    <h3><i class="bi bi-plus"></i></h3>
+                </a>
+                }
+            </div>
+            <div class="overflow-auto">
+                <ul class="tab-nav d-flex flex-lg-column gap-3" id="myTab" role="tablist"
+                    style="list-style-type: none;">
+                    @foreach (var item in Model.SectionList)
+                    {
+                        <li class="mb-2 d-flex gap-2 list-section-item-action p-3 " id="section-@item.SectionId">
+                            <span class="sectionSide parent" data-section-id="@item.SectionId"
+                                style="cursor: pointer;">@item.SectionName</span>
+                            <div class="gap-1 d-flex notvisible gap-3" id="sectionBtn">
+                                @if((bool)Context.Items["CanAddEdit"]){
+                                <button type="button" class="border-0 bg-transparent" id="EditbtnForSection"
+                                    data-bs-toggle="modal" data-bs-target="#editModalSection"
+                                    onclick="openEditModal(@item.SectionId,'@item.SectionName', '@item.Description')">
+                                    <i class="bi bi-pen"></i>
+                                </button>
+                                }
+                                @if((bool)Context.Items["CanDelete"]){
+                                <button type="button" class="border-0 bg-transparent" id="DeletebtnForSection"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModalSection"
+                                    onclick="openDeleteModal(@item.SectionId,'@item.SectionName')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                }
+                            </div>
+
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-12  ">
+            <div id="tables"></div>
+        </div>
+    </div>
+</div>
+
+@* Modal Start *@
+
+<form method="post" asp-action="AddSection" asp-controller="TableAndSection">
+    
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Add Section</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" required placeholder="Name"
+                                asp-for="SectionName">
+                            <label for="floatingInput">Name*</label>
+
+                        </div>
+                        <div class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"
+                                asp-for="Description"></textarea>
+                            <label for="floatingTextarea">Description</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="btnsubmit" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="post" asp-action="EditSection" asp-controller="TableAndSection">
+    <input type="hidden" asp-for="SectionId" id="editSectionId">
+
+    <div class="modal fade" id="editModalSection" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Edit Section</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="SectionName" id="editSectionName" required>
+                        <label for="editSectionName">Name*</label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea class="form-control" asp-for="Description" id="editSectionDescription"></textarea>
+                        <label for="editSectionDescription">Description</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="post" asp-action="DeleteSection" asp-controller="TableAndSection">
+
+    <input type="hidden" id="deleteSectionId" asp-for="SectionId">
+
+    <div class="modal fade" id="deleteModalSection" data-bs-backdrop="delete" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="deleteBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteBackdropLabel">
+                        Delete Confirmation</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex align-items-center justify-content-center flex-column ">
+                    <img src="~/images/toppng.com-warning-icon-2400x2400.png" height="50px" width="50px" alt="">
+                    <div>
+                        <p> Are you sure you want to delete <span id="deleteSectionName"></span>?</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@* Modal end *@
+
+<script>
+
+    $(function () {
+        $('.parent').parent().first().addClass('active');
+    });
+    $(function () {
+        $('.parent').on('click', function () {
+            $('.parent').parent().removeClass('active');
+            $(this).parent().addClass('active');
+        });
+    });
+    
+    function openDeleteModal(SectionId, SectionName) {
+        document.getElementById('deleteSectionId').value = SectionId;
+        document.getElementById('deleteSectionName').textContent = SectionName;
+    }
+
+    function openEditModal(SectionId, SectionName, Description) {
+        document.getElementById('editSectionId').value = SectionId;
+        document.getElementById('editSectionName').value = SectionName;
+        document.getElementById('editSectionDescription').textContent = Description;
+    }
+
+    var currentPage = 1;
+    var pageSize = 5;
+    var search = "";
+    var currentTableId = null;
+
+    function fetchTable(SectionId, currentPage, pageSize, search) {
+        $.ajax({
+            url: '/TableAndSection/Tables',
+            type: 'GET',
+            data: {
+                SectionId: SectionId,
+                page: currentPage,
+                pageSize: pageSize,
+                search: search,
+            },
+            success: function (data) {
+                $("#tables").html(data);
+            },
+            error: function (xhr, status, error) {
+                $('#tables').html('<tr><td colspan="4">Error loading items.</td></tr>');
+            }
+        });
+    }
+
+
+
+    $(document).ready(function () {
+
+        $('.sectionSide').click(function () {
+            var sectionId = $(this).data('section-id');
+            currentTableId = $(this).data('section-id');
+
+            if (sectionId) {
+                fetchTable(sectionId, currentPage, pageSize, search);
+            } else {
+                console.error("Section ID is undefined.");
+            }
+        });
+
+        const firstTableLink = document.querySelector('.sectionSide');
+
+        if (firstTableLink) {
+            const firstTableId = firstTableLink.getAttribute('data-section-id');
+
+            currentTableId = firstTableId;
+            console.log(firstTableId);
+            fetchTable(firstTableId, currentPage, pageSize, search);
+        }
+
+
+    });
+
+
+
+</script>

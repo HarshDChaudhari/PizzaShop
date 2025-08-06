@@ -1,0 +1,140 @@
+@model List<PizzaShop.Entity.ViewModel.KOTOrderCardViewModel>
+<style>
+    .hd-cl {
+        color: #0066A7;
+    }
+
+    .cardBorder {
+        border: 1px dashed;
+        border-radius: 5px;
+        border-color: gray;
+    }
+
+    .swiper {
+        width: 100%;
+        height: 350px;
+    }
+</style>
+
+@if (!Model.Any())
+{
+    <div class="d-flex justify-content-center align-items-center w-100"><span>No record found</span></div>
+}
+else
+{
+    <div class="swiper">
+        <div class="swiper-wrapper">
+            @foreach (var order in Model)
+            {
+                <div class="card-modal swiper-slide" data-order-id="@order.OrderId">
+
+                    <div class="card cardBorder">
+                        <div class="card-header bg-secondary-subtle">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span href="#" class="text-primary fw-bold hd-cl">#@order.OrderId</span>
+                                <small><i class="bi bi-clock"></i>
+                                    <span class="live-time-kot" data-order-time="@order.CreatedAt.ToString("O")"></span>
+                                </small>
+                            </div>
+                            <small class="text-muted">@order.SectionName •
+                                @string.Join(",", order.TableName.Select(t => t.ToString()))
+                            </small>
+                        </div>
+                        <div class="mt-2 overflow-auto card-body" style="max-height: 160px; height:160px;">
+                            @foreach (var item in order.Items)
+                            {
+                                <div>
+                                    @item.ItemName <span class="float-end">@item.Quantity</span>
+                                    @if (item.Modifiers != null && item.Modifiers.Any())
+                                    {
+                                        <ul class="mb-0">
+                                            @foreach (var mod in item.Modifiers)
+                                            {
+                                                <li>@mod.ModifierName</li>
+                                            }
+
+                                        </ul>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Instruction))
+                                    {
+                                        <div><span class="text-info mb-3 ms-2">Instruction:</span> @item.Instruction</div>
+                                    }
+
+                                </div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(order.OrderInstruction))
+                        {
+                            <div class="text-info fw-semibold card-footer bg-secondary-subtle" style="height:3.5rem">
+                                Order Instruction: <span class="text-dark">@order.OrderInstruction</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+}
+
+<script>
+    $(document).ready(function () {
+
+        function updateTime() {
+            $(".live-time-kot").each(function () {
+                
+                var dateString = "";
+                var time = $(this).data("order-time");
+                if (!time) {
+                    $(this).text("0 Min");
+                    return;
+                }
+                var date1 = new Date(time);
+                var date2 = new Date();
+                var diff = date2.getTime() - date1.getTime();
+                var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff -= days * (1000 * 60 * 60 * 24);
+                if (days > 0) {
+                    dateString += days + " days ";
+                }
+                var hours = Math.floor(diff / (1000 * 60 * 60));
+                diff -= hours * (1000 * 60 * 60);
+                if (hours > 0) {
+                    dateString += hours + " hours ";
+                }
+                var mins = Math.floor(diff / (1000 * 60));
+                diff -= mins * (1000 * 60);
+                if (mins > 0) {
+                    dateString += mins + " min ";
+                }
+                var seconds = Math.floor(diff / (1000));
+                diff -= seconds * (1000);
+                dateString += seconds + " sec";
+                $(this).text(dateString);
+            });
+        }
+
+        setInterval(updateTime, 1000);
+
+    })
+    swiper = new Swiper('.swiper', {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        breakpoints: {
+            576: {
+                slidesPerView: 2,
+            },
+            992: {
+                slidesPerView: 3,
+            },
+            1400: {
+                slidesPerView: 4,
+            }
+        },
+
+        navigation: {
+            nextEl: '#next-btn',
+            prevEl: '#prev-btn',
+        },
+    });
+</script>

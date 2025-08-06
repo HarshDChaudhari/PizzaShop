@@ -1,0 +1,338 @@
+@model PizzaShop.Entity.ViewModel.MenuViewModel
+@{
+    ViewData["Title"] = "Menu Page";
+}
+<style>
+    .list-catGroup-item-action #categoryBtn {
+        visibility: hidden;
+    }
+
+    .list-catGroup-item-action {
+        cursor: pointer;
+        font: 1.2em sans-serif;
+    }
+
+    .list-catGroup-item-action:hover {
+        background-color: #f0f0f0;
+        border-radius: 5px;
+    }
+
+    .list-catGroup-item-action.active {
+        background-color: rgba(40, 46, 46, 0.157);
+        color: #0F67B1;
+        font-weight: 500;
+    }
+
+    .list-catGroup-item-action.active #categoryBtn {
+        visibility: visible;
+    }
+
+    .list-catGroup-item-action.active #categoryBtn button {
+        color: #0F67B1;
+    }
+</style>
+<div class="row">
+    <div class=" d-block  rounded col-lg-3 col-md-12  bg-white"> <!-- style="width: 240px;" -->
+        <div class=" pt-2 d-flex align-items-center justify-content-center mx-4 mb-2">
+            <h4 id="category-header">Category</h4>
+            @if((bool)Context.Items["CanAddEdit"]){
+            <a class="btn blue-outline d-flex align-items-center" id="AddCategoryBtnForCategory"
+                data-bs-target="#addCategoryModal" data-bs-toggle="modal">
+                <h3><i class="bi bi-plus"></i></h3>
+            </a>
+            }
+        </div>
+        <div class="overflow-auto">
+            <ul class="tab-nav d-flex flex-lg-column gap-3 p-3" id="myTab" role="tablist"
+                style="list-style-type: none;">
+                @foreach (var item in Model.CategoriesList)
+                {
+                    <li class="categoryitems mb-2 d-flex gap-2 list-catGroup-item-action p-3"
+                        id="category-items-@item.CategoryId">
+                        <span class="category-item CategoryParent" data-category-id="@item.CategoryId"
+                            style="cursor: pointer;">@item.CategoryName</span>
+                        <div class="gap-3 d-flex notvisible ms-2 " id="categoryBtn">
+                            @if((bool)Context.Items["CanAddEdit"]){
+                            <button class="border-0 bg-transparent " data-bs-toggle="modal" id="EditCategoryBtnForCategory"
+                                data-bs-target="#editmodal"
+                                onclick="openEditModal(@item.CategoryId,'@item.CategoryName', '@item.Description')">
+                                <i class="bi bi-pen  "></i></button>
+                            }
+                            @if((bool)Context.Items["CanDelete"]){
+                            <button class="border-0 bg-transparent " data-bs-toggle="modal"
+                                id="DeleteCategoryBtnForCategory" data-bs-target="#deleteModal"
+                                onclick="openDeleteModal(@item.CategoryId,'@item.CategoryName')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-9 col-md-12">
+        <div id="categoryItems"></div>
+    </div>
+</div>
+
+
+
+
+
+@* Model Start *@
+
+@* <form method="post" asp-action="AddCategory" asp-controller="Menu"> *@
+<div class="modal fade" id="addCategoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                    Add Category</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addCategoryForm">
+                <div class="modal-body">
+                    <div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="AddCategoryName" required placeholder="Name"
+                                asp-for="CategoryName">
+                            <label for="AddCategoryName">Name*</label>
+                            <span class="text-danger" asp-validation-for="CategoryName"></span>
+                            <span class="text-danger" id="checkConstrains"></span>
+
+                        </div>
+                        <div class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here"
+                                id="AddCAtegoryDescription" asp-for="Description"></textarea>
+                            <label for="AddCAtegoryDescription">Description</label>
+                            <span id="checkConstrains"></span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="btnsubmit" class="btn btn-primary">Yes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@* </form> *@
+
+<form method="post" asp-action="DeleteCategory" asp-controller="Menu">
+
+    <input type="hidden" id="deleteCategoryId" asp-for="CategoryId">
+
+    <div class="modal fade" id="deleteModal" data-bs-backdrop="delete" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="deleteBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteBackdropLabel">
+                        Delete Confirmation</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex align-items-center justify-content-center flex-column ">
+                    <img src="~/images/toppng.com-warning-icon-2400x2400.png" height="50px" width="50px" alt="">
+                    <div>
+                        <p> Are you sure you want to delete <span id="deleteCategoryName"></span>?</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@* <form method="post" asp-action="EditCategory" asp-controller="Menu"> *@
+
+<div class="modal fade" id="editmodal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Edit Category</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editCategoryForm">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="hidden" asp-for="CategoryId" id="editCategoryId">
+                        <input type="text" class="form-control" asp-for="CategoryName" id="editCategoryName" required>
+                        <label for="editCategoryName">Name*</label>
+                        <span class="text-danger" id="checkConstrains"></span>
+                    </div>
+                    <div class="form-floating">
+                        <textarea class="form-control" asp-for="Description" id="editCategoryDescription"></textarea>
+                        <label for="editCategoryDescription">Description</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@* </form> *@
+
+
+
+@* Model End *@
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
+<script type="text/javascript">
+    let selectedModifierGroups = [];
+    let selectedModifierGroupEdit = [];
+    let tempArray = [];
+
+    function openDeleteModal(CategoryId, CategoryName) {
+
+        document.getElementById('deleteCategoryId').value = CategoryId;
+        document.getElementById('deleteCategoryName').textContent = CategoryName;
+
+    }
+
+    function openEditModal(CategoryId, CategoryName, Description) {
+        document.getElementById('editCategoryId').value = CategoryId;
+        document.getElementById('editCategoryName').value = CategoryName;
+        document.getElementById('editCategoryDescription').textContent = Description;
+
+    }      
+</script>
+
+
+<script>
+
+    $(document).on('submit', '#addCategoryForm', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var formData = form.serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddCategory", "Menu")',
+            data: formData,
+            success: function (response) {
+                
+                if (response.success == false) {
+                    toastr.error(response.message);
+                    return;
+                }
+                else {
+                    @* toastr.success(response.message); *@
+                    $('#addCategoryModal').modal('hide');
+                }
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                // Handle error response
+            }
+        });
+    })
+
+    $(document).on('submit', '#editCategoryForm', function (e) {
+        
+        e.preventDefault();
+        var form = $(this);
+        var formData = form.serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("EditCategory", "Menu")',
+            data: formData,
+            success: function (response) {
+                if (response.success == false) {
+                    toastr.error(response.message);
+                    return;
+                }
+                else {
+                    @* toastr.success(response.message); *@
+                    $('#editmodal').modal('hide');
+                }
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                // Handle error response
+            }
+        });
+    })
+
+    $(function () {
+        $('.CategoryParent').parent().first().addClass('active');
+    });
+    $(function () {
+        $('.CategoryParent').on('click', function () {
+            $('.CategoryParent').parent().removeClass('active');
+            $(this).parent().addClass('active');
+        });
+    });
+
+
+    var currentPage = 1;
+    var pageSize = 5;
+    var search = "";
+    var currentCategoryId = null;
+
+
+    function fetchCategoryItems(categoryId, currentPage, pageSize, search) {
+
+        $.ajax({
+            url: '/Menu/CategoryItems',
+            type: 'GET',
+            data: {
+                categoryId: categoryId,
+                page: currentPage,
+                pageSize: pageSize,
+                search: search
+            },
+            success: function (data) {
+                console.log(data);
+                $("#categoryItems").html(data);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#categoryItems').html('<tr><td colspan="4">Error loading items.</td></tr>');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        // When a category is clicked
+        $('.category-item').click(function () {
+            var categoryId = $(this).data('category-id');
+            currentCategoryId = $(this).data('category-id');
+
+            if (categoryId) {
+                currentPage = 1;
+                fetchCategoryItems(categoryId, currentPage, pageSize, search);
+            } else {
+                console.error("Category ID is undefined.");
+            }
+        });
+
+        const firstCategoryLink = document.querySelector('.category-item');
+
+        if (firstCategoryLink) {
+            const firstCategoryId = firstCategoryLink.getAttribute('data-category-id');
+            currentCategoryId = firstCategoryId;
+            console.log(firstCategoryId);
+            fetchCategoryItems(firstCategoryId, currentPage, pageSize, search);
+        }
+
+
+    });
+
+</script>

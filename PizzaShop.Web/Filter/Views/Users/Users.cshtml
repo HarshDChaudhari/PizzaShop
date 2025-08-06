@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "UserList Page";
+}
+
+
+
+@model PizzaShop.Entity.ViewModel.UserlistViewModel
+<div>
+    <!-- user nav -->
+    <div class="d-flex  justify-content-between mb-4">
+        <div class="m-1">
+            <h1 class="text-primary"> Users</h1>
+        </div>
+        <div class="d-flex align-items-center justify-content-center gap-3 m-2" id="addUserBtn">
+            <div id="has-search">
+                <span class="fa fa-search form-control-feedback"></span>
+                <input class="form-control " type="search" value="@ViewBag.search" placeholder="Search" name="search"
+                    id="searchUserList" aria-label="Search">
+            </div>
+            @if((bool)Context.Items["CanAddEdit"] == true)
+            {
+            <a class="btn btn-primary" asp-action="AddUser" asp-controller="Users">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-plus-lg"></i>
+                    Add User
+                </div>
+            </a>
+            }
+        </div>
+    </div>
+
+    <!--user list-->
+    <div class="shadow bg-white rounded " id="UserList">
+
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="DeleteUser" asp-controller="Users" method="post">
+                <div class="modal-body text-center d-block">
+                    <img src="~/images/toppng.com-warning-icon-2400x2400.png" alt="warning" width="50px">
+                    <p>Are you sure you want to Delete this User ?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <input name="email" id="model-email" hidden>
+                    <button type="submit" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var currentPage = 1;
+    var pageSize = 5;
+    var search = "";
+    var sortColumn = "";
+    var sortOrder = "asc";
+    const sortStates = [];
+
+
+
+    $('#searchUserList').on('input', function () {
+
+        search = $(this).val();
+        fetchUserList(currentPage, pageSize, search, sortColumn, sortOrder);
+    });
+
+    function fetchUserList(currentPage, pageSize, search, sortColumn, sortOrder) {
+        $.ajax({
+            url: '/Users/UserList',
+            type: 'GET',
+            data: {
+                page: currentPage,
+                pageSize: pageSize,
+                search: search,
+                sortColumn: sortColumn,
+                sortOrder: sortOrder,
+
+
+            },
+            success: function (data) {
+                $("#UserList").html(data);
+            },
+            error: function (xhr, status, error) {
+                $('#UserList').html('<tr><td colspan="4">Error loading items.</td></tr>');
+            }
+        });
+    }
+
+
+
+    $(document).ready(function () {
+        fetchUserList(currentPage, pageSize, search, sortColumn, sortOrder);
+
+
+        $('.openmodel').on("click", function () {
+            var email = $(this).data('id');
+            console.log(email)
+            $("#model-email").val(email);
+        });
+    });
+</script>

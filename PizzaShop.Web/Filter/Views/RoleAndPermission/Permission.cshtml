@@ -1,0 +1,170 @@
+@{
+    ViewData["Title"] = "Roles and Permissions";
+}
+@model PizzaShop.Entity.ViewModel.RoleViewModel
+
+<div class="row ">
+    <div class="col-lg-12 d-flex justify-content-between">
+        <div>
+            <h2>Permission</h2>
+        </div>
+        <div>
+            <div class="input-group">
+                <div class="d-flex align-items-center">
+                    <div class="border">
+                        <a asp-action="Roles" asp-controller="RoleAndPermission" class="btn" role="button">
+                            <i class="bi bi-chevron-left"></i><span>Back</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pt-3 ps-3 mt-3 shadow bg-white rounded ">
+        <div class="row">
+            <div class="col-3">
+                <div class="form-floating ">
+                    <input type="text" class="form-control" id="fname" value="@ViewBag.RoleName" disabled />
+
+                    <label for="role">Role</label>
+                </div>
+            </div>
+        </div>
+        <form method="post">
+            <input type="text" asp-for="RoleId" hidden>
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                </div>
+                            </th>
+                            <th scope="col">Permission</th>
+                            <th scope="col">Can View</th>
+                            <th scope="col">Can Add/Edit</th>
+                            <th scope="col">Can Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @for (int i = 0; i < @Model.PermissionList.Count(); i++)
+                        {
+                            <input type="hidden" asp-for="PermissionList[i].PermissionId">
+                            <input type="hidden" asp-for="PermissionList[i].ModuleName">
+
+
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input row-checkbox" id="checked'@i'"  type="checkbox" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <label class="form-check" for="checked'@i'">
+                                        @Model.PermissionList[i].ModuleName
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input toggle-switch canView" type="checkbox"
+                                            asp-for="@Model.PermissionList[i].CanView"  />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input toggle-switch canAddEdit" type="checkbox"
+                                            asp-for="@Model.PermissionList[i].CanAddEdit" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input toggle-switch canDelete" type="checkbox"
+                                            asp-for="@Model.PermissionList[i].CanDelete"  />
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+                <div class="d-flex justify-content-end gap-3 m-3">
+                    <button type="submit" class="btn btn-primary text-white">Save</button>
+                    <a asp-action="Roles" asp-controller="RoleAndPermission"
+                        class="btn border border-primary text-primary">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        let selectAll = $("#selectAll");
+        let checkboxes = $(".row-checkbox");
+
+        function updateSelectAllState() {
+            let checkedCount = checkboxes.filter(":checked").length;
+            selectAll.prop("indeterminate", checkedCount > 0 && checkedCount < checkboxes.length)
+                        .prop("checked", checkedCount === checkboxes.length);
+        }
+
+        function toggleRowSwitches(row, isChecked) {
+            let switches = row.find(".toggle-switch");
+            switches.prop("disabled", !isChecked);
+            if (!isChecked) {
+                switches.prop("checked", false);
+            }
+        }
+
+        selectAll.change(function () {
+            let isChecked = this.checked;
+            checkboxes.prop("checked", isChecked);
+            checkboxes.each(function () {
+                let row = $(this).closest("tr");
+                toggleRowSwitches(row, isChecked);
+            });
+            updateSelectAllState();
+        });
+
+        checkboxes.change(function () {
+            let row = $(this).closest("tr");
+            let isChecked = $(this).is(":checked");
+            toggleRowSwitches(row, isChecked);
+            updateSelectAllState();
+        });
+
+        $(".canAddEdit, .canDelete").change(function () {
+            let row = $(this).closest("tr");
+            let canView = row.find(".canView");
+
+            if ($(this).is(":checked")) {
+                canView.prop("checked", true);
+            }
+        });
+
+        $(".canView").change(function () {
+            let row = $(this).closest("tr");
+            let canAddEdit = row.find(".canAddEdit");
+            let canDelete = row.find(".canDelete");
+
+            if (!$(this).is(":checked")) {
+                canAddEdit.prop("checked", false);
+                canDelete.prop("checked", false);
+            }
+        });
+
+        checkboxes.each(function () {
+            let row = $(this).closest("tr");
+            let canView = row.find(".canView");
+            if (canView.is(":checked")) {
+                $(this).prop("checked", true);
+            }
+            let isChecked = $(this).is(":checked");
+            toggleRowSwitches(row, isChecked);
+        });
+        updateSelectAllState();
+    });
+</script>

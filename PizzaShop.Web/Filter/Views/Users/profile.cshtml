@@ -1,0 +1,253 @@
+@{
+    ViewData["Title"] = "Profile Page";
+}
+@model PizzaShop.Entity.ViewModel.ProfileViewModel
+
+<div class="">
+    <div class="row">
+        <div class="col-lg-12 d-flex justify-content-between">
+            <div>
+                <h2>My Profile </h2>
+            </div>
+        </div>
+        <form asp-controller="Users" asp-action="Profile" enctype="multipart/form-data"
+            method="post">
+            <div class="mb-5">
+                <div>
+                    <div class="position-relative">
+                        <img src="~/images/profile_div_bg.jpg" alt="" style=" width: 100%; height: 100px; "
+                            class="col-4">
+                    </div>
+
+                    <div class="">
+                        <div class="position-absolute" style="margin-top: -40px; margin-left: 10px; z-index: 1;">
+                            @if (Model.Imgurl == null)
+                            {
+                                <img class="position-relative rounded-circle profile-image" alt="Profile Image"
+                                    height="100px" width="100px" id="image-view-profile" src="~/images/Default_pfp.svg.png">
+                            }
+                            else
+                            {
+                                <img class="position-relative rounded-circle profile-image" alt="Profile Image"
+                                    height="100px" width="100px" id="image-view-profile" src="~/@Model.Imgurl">
+                            }
+                            <label class="position-absolute bottom-0 end-0 bg-light rounded-circle p-1 border"
+                                for="upload-photo" style="cursor: pointer;">
+                                <i class="bi bi-camera"></i>
+                            </label>
+                            <input type="file" id="upload-photo" class="d-none" asp-for="FormFile">
+                        </div>
+                        <div class=" " style="margin-left:120px ;">
+                            <h3>
+                                @Model.FirstName @Model.LastName
+                            </h3>
+                            <span>@Model.Role</span>
+
+                            <p style="float: right; margin-right: 20px;">
+                                @Model.Email
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card p-4" style="margin-top: 0px;">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="Firstname" asp-for="FirstName">
+                                <label for="Firstname">First Name</label>
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="Lastname" asp-for="LastName">
+                                <label for="Lastname">Last Name</label>
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="Username" asp-for="Username">
+                                <label for="Username">Users Name</label>
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="Phone" asp-for="Phone">
+                                <label for="Phone">Phone</label>
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+
+                                <select class="form-select" id="countrySelect"
+                                    aria-label="Floating label select example" asp-for="Country">
+                                </select>
+                                <label for="countrySelect">Country</label>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="stateSelect" aria-label="Floating label select example"
+                                    asp-for="State">
+                                </select>
+                                <label for="stateSelect">State</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+
+                                <select class="form-select" id="citySelect" aria-label="Floating label select example"
+                                    asp-for="City">
+                                </select>
+                                <label for="citySelect">City</label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="Address" asp-for="Address">
+                                <label for="Address">Address</label>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating ">
+                                <input type="text" class="form-control" id="ZipCode" asp-for="ZipCode">
+                                <label for="ZipCode">ZipCode</label>
+                                <span asp-validation-for="ZipCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center justify-content-md-end mt-3">
+                        @if((bool)Context.Items["CanAddEdit"] == true)
+                        {
+                        <button type="submit" class="btn btn-primary me-2">Update</button>  
+                        }
+                        <a asp-action="AdminHome" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type: 'GET',
+            url: '/Users/GetCountries',
+            success: function (data) {
+                console.log(data);
+                var s = '<option value="-1">Please select a country</option>';
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].countryId == @Model.Country) {
+                        s += '<option value="' + data[i].countryId + '" selected>' + data[i].countryName + '</option>';
+                    }
+                    else {
+                        s += '<option value="' + data[i].countryId + '">' + data[i].countryName + '</option>';
+                    }
+                }
+                $("#countrySelect").html(s);
+            }
+        });
+        $.ajax({
+            type: 'GET',
+            url: '/Users/GetStates',
+            data: { CountryId: @Model.Country },
+            success: function (data) {
+                console.log(data);
+                var s = '<option value="-1">Please select a state</option>';
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].stateId == @Model.State) {
+                        s += '<option value="' + data[i].stateId + '" selected>' + data[i].stateName + '</option>';
+                    }
+                    else {
+                        s += '<option value="' + data[i].stateId + '">' + data[i].stateName + '</option>';
+                    }
+
+                }
+                $("#stateSelect").html(s);
+            }
+        });
+        $.ajax({
+            type: 'GET',
+            url: '/Users/GetCities',
+            data: { stateId: @Model.State },
+            success: function (data) {
+                console.log(data);
+                var s = '<option value="-1">Please select a city</option>';
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].cityId == @Model.City) {
+                        s += '<option value="' + data[i].cityId + '" selected>' + data[i].cityName + '</option>';
+                    }
+                    else {
+                        s += '<option value="' + data[i].cityId + '">' + data[i].cityName + '</option>';
+                    }
+                }
+                $("#citySelect").html(s);
+            }
+        });
+    });
+
+    $('#countrySelect').change(function () {
+        var countryId = $(this).val();
+        $('#stateSelect').empty().append('<option selected>Select state</option>').prop('disabled', false);
+        $.ajax({
+            type: 'GET',
+            url: '/Users/GetStates',
+            data: { CountryId: countryId },
+            success: function (data) {
+
+                console.log(data);
+                var s = '<option value="-1">Please select a state</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].stateId + '">' + data[i].stateName + '</option>';
+                }
+                $("#stateSelect").html(s);
+            }
+        });
+    });
+
+    $('#stateSelect').change(function () {
+        var stateId = $(this).val();
+        $('#citySelect').empty().append('<option selected>Select city</option>').prop('disabled', false);
+        $.ajax({
+            type: 'GET',
+            url: '/Users/GetCities',
+            data: { stateId: stateId },
+            success: function (data) {
+                var s = '<option value="-1">Please select a city</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].cityId + '">' + data[i].cityName + '</option>';
+                }
+                $("#citySelect").html(s);
+            }
+        });
+    });
+
+    $("#upload-photo").change(function () {
+        const file = this.files[0];
+        if (file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                $("#image-view-profile").attr("src", event.target.result);
+            };
+            fileReader.readAsDataURL(file);
+        }
+    });
+</script>

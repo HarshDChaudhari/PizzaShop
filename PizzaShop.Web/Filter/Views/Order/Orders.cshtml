@@ -1,0 +1,199 @@
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<div class="d-sm-flex justify-content-between align-items-center ms-3 pt-4">
+    <h2 class="text-header mb-3 hd-cl">Orders</h2>
+    <div class="d-flex gap-2 me-2 justify-content-end align-items-center col-md-9 ">
+        <div class="input-group ">
+            <div id="has-search" class="w-100">
+                <span class="fa fa-search form-control-feedback"></span>
+                <input class="form-control " type="search" placeholder="Search" name="search" id="searchOrder"
+                    aria-label="Search">
+            </div>
+        </div>
+        <select id="order-status" class="form-select " aria-label="Default select example">
+            <option selected value="">All Orders</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="InProgress">Processing</option>
+            <option value="Served">Served</option>
+            <option value="Failed">Cancelled</option>
+        </select>
+
+        <select id="order-time" class="form-select " aria-label="Default select example">
+            <option selected value="">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="month">Current Month</option>
+        </select>
+
+        <button id="export-Order-btn" type="button" onclick="exportAllOrder()"
+            class="btn btn-primary py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap me-3 d-flex justify-content-center align-items-center gap-1"
+            style="height: 35px;">
+            @* <img  width="24px" class=""> *@
+            <i class="fa-solid fa-file-export"></i>
+            <span> Export</span>
+        </button>
+    </div>
+</div>
+
+
+<div class="d-md-flex flex-column flex-sm-row justify-content-end align-items-center gap-2 mb-3">
+    <div class="form-floating w-25">
+        <input type="date" name="fromDate" id="fromDate" class="form-control" placeholder="Start Date">
+        <label for="fromDate">From Date</label>
+    </div>
+    <div class="form-floating w-25">
+        <input type="date" name="toDate" id="toDate" class="form-control" placeholder="End Date">
+        <label for="toDate">To Date</label>
+    </div>
+    <div class="">
+        <button id="search-btn" type="submit"
+            class="btn btn-primary py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap">
+            Search
+        </button>
+        <button id="clear-btn" type="button"
+            class="btn border-primary rounded-0 text-primary py-2 px-3 text-decoration-none rounded-1 ms-1 me-4 text-nowrap">
+            Cancel
+        </button>
+    </div>
+</div>
+
+
+
+<div id="order-partial" class="ms-3 me-4 table-responsive bg-white shadow">
+</div>
+
+<script>
+    var currentPage = 1;
+    var pageSize = 5;
+    var search = "";
+    var orderStatus = '';
+    var orderTime = '';
+    let fromDate = '';
+    let toDate = '';
+    var sortOrderColumn = "";
+    var sortOrderOrder = "";
+    const sortStates = [];
+
+    $('#search-btn').on('change', function (e) {
+        e.preventDefault();
+        fromDate = $('#fromDate').val();
+        console.log(fromDate);
+        toDate = $('#toDate').val();
+        console.log(toDate);
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder);
+    });
+
+    $('#clear-btn').on('click', function () {
+        fromDate = '';
+        toDate = '';
+        $('#fromDate, #toDate').val('');
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder);
+    });
+
+    $('#order-status').on('change', function () {
+        orderStatus = $(this).val(); // Capture the selected value
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder);
+    });
+
+    $('#searchOrder').on('input', function (e) {
+        e.preventDefault();
+        search = $(this).val();
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder);
+    });
+
+    $('#order-time').on('change', function () {
+        orderTime = $(this).val();
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder);
+    });
+             
+    function fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate,sortOrderColumn,sortOrderOrder) {
+        console.log({
+            currentPage,
+            pageSize,
+            search,
+            orderStatus,
+            orderTime,
+            fromDate,
+            toDate
+        });
+        $.ajax({
+            url: '/Order/GetOrderDetails',
+            type: 'GET',
+            data: {
+                page: currentPage,
+                pageSize: pageSize,
+                search: search,
+                orderStatus: orderStatus,
+                orderTime: orderTime,
+                fromDate: fromDate,
+                toDate: toDate,
+                sortOrderColumn: sortOrderColumn,
+                sortOrderOrder: sortOrderOrder,
+            },
+            success: function (response) {
+                $("#order-partial").html(response);
+            },
+            error: function (xhr, status, error) {
+                $('#order-partial').html('<tr><td colspan="4">Error loading items.</td></tr>');
+            }
+        });
+    }
+
+    function exportAllOrder() {
+              // Get filter values
+
+              const CustomerDates = $('#order-time').val();
+              const searchCustomer = $('#searchOrder').val();
+              const fromDate = $('#fromDate').val();
+              const toDate = $('#toDate').val();
+              const Status = $('#order-status').val();
+
+              // Prepare loading state
+              const exportBtn = $('#export-Order-btn');
+              exportBtn.prop('disabled', true);
+              exportBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...');
+              // AJAX call
+              $.ajax({
+                     url: "ExportToExcel",
+                     type: 'GET',
+                     data: {
+                            time: CustomerDates,
+                            search: searchCustomer,
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            status: Status,
+                     },
+                     xhrFields: {
+                            responseType: 'blob'
+                     },
+                     success: function (data, status, xhr) {
+                            // Create download link
+                            const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            const downloadUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = 'CustomerExport.xlsx';
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Cleanup
+                            setTimeout(function () {
+                                   document.body.removeChild(a);
+                                   window.URL.revokeObjectURL(downloadUrl);
+                            }, 100);
+                     },
+                     complete: function () {
+                            // Reset button state
+                            exportBtn.prop('disabled', false);
+                            exportBtn.html('<img src="/images/icons/export-white.png" width="24px"><span> Export</span>');
+                     }
+              });
+       }
+
+    $(document).ready(function () {
+        fetchTable(currentPage, pageSize, search, orderStatus, orderTime, fromDate, toDate)
+    });
+</script>

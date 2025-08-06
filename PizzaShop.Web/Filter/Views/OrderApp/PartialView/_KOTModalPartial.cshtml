@@ -1,0 +1,70 @@
+@model PizzaShop.Entity.ViewModel.KOTOrderCardViewModel
+@{
+    var currentStatus = ViewBag.CurrentStatus.ToString();
+    string buttonText = currentStatus == "InProgress" ? "Mark as Prepared" : "Mark as In Progress";
+    string nextStatus = currentStatus == "InProgress" ? "Ready" : "InProgress";
+}
+
+<script>
+    .quantity-btn{
+        width: 150px;
+        height: 50px;
+        display: flex;
+    }
+</script>
+
+<div class="modal-header">
+    <h4>Order ID: #@Model.OrderId</h4>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body text-center">
+    <div class="text-secondary d-flex justify-content-between border-secondary border-bottom fw-bold p-2">
+        <span>Item</span><span>Quantity</span>
+    </div>
+    @foreach (var item in Model.Items)
+    {
+        <div class="d-flex justify-content-between p-2 orderitemquantity">
+            <div>
+                <div class="form-check">
+                    <input class="form-check-input item-checkbox" type="checkbox" value="@item.OrderItemId"
+                        id="item-@item.OrderItemId" />
+                    <label class="form-check-label" for="item-@item.OrderItemId">@item.ItemName</label>
+                </div>
+                <ul class="m-1 text-start">
+                    @foreach (var mod in item.Modifiers)
+                    {
+                        <li class="text-secondary"><small>@mod.ModifierName</small></li>
+                    }
+                </ul>
+            </div>
+            <div class="quantity-btn border-primary rounded-1 border" style="height: 40px;">
+                <div class="input-group d-flex align-items-center justify-content-between">
+                    <button type="button" class="quantity-left-minus btn btn-number" data-id="@item.OrderItemId">
+                        <i class="bi bi-dash-lg"></i>
+                    </button>
+                    <div style="width: 50px;">
+                        <input type="text" class="form-control input-number border-0 qty-input bg-white"
+                            max="@item.Quantity" data-id="@item.OrderItemId" value="@item.Quantity" disabled />
+
+                    </div>
+                    <button type="button" class="quantity-right-plus btn btn-number" data-id="@item.OrderItemId"
+                        data-max="@item.Quantity">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer mb-3">
+    <button class="btn btn-primary bg-header me-2 rounded-0 px-3" id="update-status-btn" data-order-id="@Model.OrderId"
+        data-status="@nextStatus">
+        @buttonText
+    </button>
+    <button type="button" class="btn text-primary bg-white text-header border-primary rounded-0 px-3"
+        data-bs-dismiss="modal">Cancel</button>
+</div>
+
+<script>
+
+</script>

@@ -1,0 +1,298 @@
+@using Microsoft.AspNetCore.Hosting.Server
+@model PizzaShop.Entity.ViewModel.OrderSummaryViewModel;
+@{
+   ViewData["Title"] = "ExportPdf"; Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<style>
+   .container {
+      padding: 10px 0px;
+   }
+
+   .border-color-blue {
+      background-color: #0066a6;
+   }
+
+   .color-blue {
+      color: #0066a6;
+   }
+
+   .pizzaHeading {
+      color: #0066a6;
+      font-size: 25px;
+   }
+
+   .text-white {
+      color: white;
+   }
+
+   .border-bottom {
+      border-bottom: 1px solid #0066a6;
+   }
+</style>
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>ExportPdf - Pizzashop</title>
+   <link rel="stylesheet"
+      href="@($"{Context.Request.Scheme}://{Context.Request.Host}/lib/bootstrap/dist/css/bootstrap.min.css")" />
+   <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body>
+   <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   <div class="container w-75">
+      <div style="text-align: center; white-space: nowrap; margin-top: 20px;">
+         <div style="display: inline-block; vertical-align: middle;">
+            <img src="@Url.Content("~/images/logos/pizzashop_logo.png")" alt="PizzaShop"
+               style="width: 50%; vertical-align: middle;">
+         </div>
+         <div style="display: inline-block">
+            <p class="pizzaHeading"
+               style="display: inline-block; margin-left:-50px; font-size: 24px; font-weight: bold;">
+               PIZZASHOP</p>
+         </div>
+      </div>
+      <div class="m-0 mt-3 customer-details-table-row" style="white-space: nowrap;">
+         <div class="p-3 justify-self-center"
+            style="display: inline-block; vertical-align: top; width: 48%; box-sizing: border-box;">
+            <p class="fw-bold color-blue">Customer Details</p>
+            <div>
+               <span>Name: </span>
+               <span>@Model.CustomerName</span>
+               <br />
+               <span>Phone: </span>
+               <span>@Model.Phone</span><br />
+            </div>
+         </div>
+
+         <div class="p-3" style="display: inline-block; vertical-align: top; width: 48%; box-sizing: border-box;">
+            <p class="fw-bold color-blue">Order Details</p>
+            <div>
+               <span>Invoice Number: </span>
+               @* <span>#@Model.Invoice</span> *@
+               <br />
+               <span>Date: </span>
+               <span>@Model.CreatedAt.ToShortDateString()</span>
+               <br />
+               <span>Section: </span>
+               <span>@Model.table.SectionName</span>
+               <br />
+               <span>Table: </span>
+               @for (var i = 0; i < Model.table.TableName.Count(); i++)
+               {
+                  if (Model.table.TableName.Count() - i == 1)
+                  {
+                     <span>@Model.table.TableName[i]</span>
+                  }
+                  else
+                  {
+                     <span>@Model.table.TableName[i]</span>
+                  }
+               }
+               <br />
+            </div>
+         </div>
+      </div>
+      <div class="table-responsive mt-2">
+         <table class="table fw-lighter order-details-table" id="orderDetailsTable">
+            <thead>
+               <tr class="border-bottom border-color-blue">
+                  <th scope="col" class="background-white text-white">Sr.No.</th>
+                  <th scope="col" class="background-color-blue text-white">Items</th>
+                  <th scope="col" class="background-color-blue text-white">Quantity</th>
+                  <th scope="col" class="text-end background-color-blue text-white">Unit Price</th>
+                  <th scope="col" class="text-end background-color-blue text-white">Amount</th>
+               </tr>
+            </thead>
+            <tbody id="orderTableBody">
+               @if (Model.items != null && Model.items.Any())
+               {
+                  for (int i = 0; i < Model.items.Count; i++)
+                  {
+                     var item = Model.items[i];
+                     <tr class="BillCategoryItem">
+                        <td rowspan="@(item.modifier?.Count() > 0 ? item.modifier.Count() + 1 : 1)">
+                           @(i + 1)
+                        </td>
+                        <td class="pb-0">
+                           @item.ItemName
+                           <span id="TaxPercentage" hidden>@item.TaxPercentage</span>
+                        </td>
+                        <td class="pb-0" id="CategoryItemQuantity">@item.Quantity</td>
+                        <td class="text-end pb-0" id="CategoryItemRate">@item.Rate.ToString()</td>
+                        <td class="text-end pb-0" id="TotalCategoryItem"></td>
+                     </tr>
+                     if (item.modifier != null && item.modifier.Any())
+                     {
+                        for (int j = 0; j < item.modifier.Count(); j++)
+                        {
+                           var modifier = item.modifier.ElementAt(j); var count = item.modifier?.Count();
+                           <tr class=" Modifier @(count != j + 1 ? "" : "border-bottom")" data-modifierName="@modifier.ModifierName">
+                              <td class="@(count != j + 1 ? "py-0" : "pt-0")">@modifier.ModifierName</td>
+                              <td class="@(count != j + 1 ? "py-0" : "pt-0")" id="ModifierItemQuantity">@modifier.Quantity</td>
+                              <td class="text-end @(count != j + 1 ? "py-0" : "pt-0")" id="ModifierItemRate-@modifier.ModifierName">
+                                 @modifier.Rate.ToString()
+                              </td>
+                              <td class="text-end @(count != j + 1 ? "py-0" : "pt-0") TotalModifierItem" >@(item.Quantity*modifier.Rate)</td>
+                           </tr>
+                           
+                           
+                        }
+                     }
+                  }
+                  <tr>
+                     <td colspan="4"><strong>Sub Total:</strong></td>
+                     <td class="text-end" id="SubTotal"><strong></strong></td>
+
+                  </tr>
+
+                  @if (Model.tax != null && Model.tax.Any())
+                  {
+                     @foreach (var tax in Model.tax.Where(t => t.TaxValue > 0))
+                     {
+                        <tr>
+                           <td colspan="4">@tax.TaxName</td>
+                           <td class="text-end TaxValueTotal" data-taxtype="@tax.TaxType" data-taxvalue="@tax.TaxValue">
+                              @tax.TaxValue.ToString()</td>
+                        </tr>
+                     }
+                  }
+                  <tr>
+                     <td colspan="4"> Other:</td>
+                     <td class="text-end OtherTaxValue"></td>
+                  </tr>
+                  <tr class="border-top  text-white fw-bold">
+                     <td colspan="4" class="color-blue"> Total Amount Due:</td>
+                     <td class="text-end color-blue" id="TotalAmount"></td>
+                  </tr>
+               }
+               else
+               {
+                  <tr>
+                     <td colspan="5" class="text-center">No items found</td>
+                  </tr>
+               }
+
+            </tbody>
+         </table>
+      </div>
+      <div>
+         <span class="color-blue text-center"><strong>Payment Information:</strong></span>
+         <br /> <span>Payment Method:</span>
+         <span>@Model.PaymentMethod</span>
+      </div>
+      <div class="d-flex mt-5 text-center">
+         <span class="color-blue fw-bold ">THANK YOU!</span>
+      </div>
+   </div>
+   <script
+      src="@($"{Context.Request.Scheme}://{Context.Request.Host}/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+   <script src="~/js/site.js"></script>
+</body>
+
+</html>
+
+<script>
+   $(document).ready(function () {
+      var totalCategoryItem = 0;
+      var totalModifierItem = 0;
+      var totalModifierItemRate = 0;
+      var categoryItemRate = 0;
+      var categoryItemQuantity = 0;
+      var modifierItemRate = 0;
+      var modifierItemRateFinal = 0;
+      var subTotal = 0;
+      var totalTax = 0;
+      var taxPercentage = 0;
+      var final = 0;
+      var finalModifier = 0;
+
+
+      // Calculate total for each category item
+      $("#orderTableBody tr").each(function () {
+
+         categoryItemRate = parseFloat($(this).find("#CategoryItemRate").text()) || 0;
+         categoryItemQuantity = parseFloat($(this).find("#CategoryItemQuantity").text()) || 0;
+         totalCategoryItem = categoryItemRate * categoryItemQuantity;
+
+         $(this).find("#TotalCategoryItem").text(totalCategoryItem.toFixed(2));
+
+         // Calculate total for each modifier item
+
+         // Calculate tax percentage
+         var taxPercentage = parseFloat($(this).find("#TaxPercentage").text()) || 0;
+         if (taxPercentage > 0) {
+            var taxAmount = (totalCategoryItem * taxPercentage) / 100;
+            totalTax += taxAmount;
+         }
+      });
+
+      // Calculate sub total
+      $(".BillCategoryItem").find("#TotalCategoryItem").each(function () {
+         
+         var totalCategoryItem = parseFloat($(this).text()) || 0;
+         final += totalCategoryItem;
+      });
+
+      $(".TotalModifierItem").each(function () {
+         
+         var totalModifierItem = parseFloat($(this).text()) || 0;
+         finalModifier += totalModifierItem;
+      });
+
+      // Calculate sub total
+      
+      subTotal = final + finalModifier;
+
+
+      // Display the sub total
+      $("#SubTotal").text(subTotal.toFixed(2));
+      // Display the total amount
+      $("#TotalAmount").text((subTotal + totalTax).toFixed(2));
+
+
+      // Calculate tax values
+      $(".TaxValueTotal").each(function () {
+
+         var taxType = $(this).data("taxtype");
+         var taxValue = parseFloat($(this).data("taxvalue"));
+         var subTotal = parseFloat($("#SubTotal").text());
+         var taxAmount = 0;
+
+         if (taxType === "Percentage") {
+            taxAmount = (subTotal * taxValue) / 100;
+         } else if (taxType === "FlatAmount") {
+            taxAmount = taxValue;
+         }
+
+         totalTax += taxAmount;
+         $(this).text(taxAmount.toFixed(2));
+      });
+
+
+      // Calculate other taxes
+      var otherTaxTotal = 0;
+      $(".table tbody tr").each(function () {
+         var percentageTax = parseFloat($(this).find("#TaxPercentage").text()) || 0;
+         var categoryItemRate = parseFloat($(this).find("#CategoryItemRate").text()) || 0;
+         var categoryItemQuantity = parseFloat($(this).find("#CategoryItemQuantity").text()) || 0;
+         var otherTaxAmount = categoryItemQuantity * (categoryItemRate * percentageTax) / 100;
+
+         otherTaxTotal += otherTaxAmount;
+      });
+
+
+      // Display the total other tax
+      $(".OtherTaxValue").text(otherTaxTotal.toFixed(2));
+
+
+
+      // Calculate total amount
+      var totalAmount = subTotal + (totalTax);
+      $("#TotalAmount").text(totalAmount.toFixed(2));
+
+   });
+</script>

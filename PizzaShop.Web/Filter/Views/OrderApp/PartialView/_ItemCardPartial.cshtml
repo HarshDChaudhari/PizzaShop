@@ -1,0 +1,144 @@
+@model PizzaShop.Entity.ViewModel.OrderAppMenuViewModel;
+<style>
+    .item-card {
+        position: relative;
+        background-color: white;
+        height: 75px;
+        width: 300px;
+        border-radius: 5px;
+    }
+
+    .img-card-item {
+        width: 85px !important;
+        height: 72px !important;
+        /* border-radius: 10px; */
+    }
+
+    .price-item {
+        color: #4C5556;
+    }
+
+
+
+    .corner-veg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 35px 35px 0;
+        border-radius: 5px;
+        border-color: transparent #00a65a transparent transparent;
+    }
+
+    .corner-non {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 35px 35px 0;
+        border-radius: 5px;
+        border-color: transparent #ca240e transparent transparent;
+    }
+
+    .corner-vegan {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 35px 35px 0;
+        border-radius: 5px;
+        border-color: transparent #f39e4f transparent transparent;
+    }
+
+    .heart-color {
+        color: rgb(18, 90, 199);
+    }
+</style>
+@if (Model.Items.Any())
+{
+    @foreach (var item in Model.Items)
+    {
+        <div class="d-flex item-card shadow" data-itemid="@item.ItemId" data-itemname="@item.ItemName"
+            data-itemtype="@item.ItemType">
+            @{
+                string url = item.ImgUrl == null ? "/images/dining-menu.png" : "" + item.ImgUrl;
+            }
+            <div class="h-100 img-card-item shadow rounded-circle">
+                <img src="@url" class="w-100 h-100 rounded-circle" alt="">
+            </div>
+            @{
+                string temp = item.ItemType == "non-veg" ? "corner-non" : item.ItemType == "veg" ? "corner-veg" : "corner-vegan";
+            }
+            <div class="@temp"></div>
+            <div class="d-flex flex-column w-100 h-100">
+                <div class="w-100 my-2 ms-2">
+                    <p class="m-0">@item.ItemName</p>
+                    @* <p class="m-0">@item.TaxPercentage</p> *@
+                </div>
+                <div class="d-flex justify-content-between w-100 px-2 pt-2 align-items-center">
+                    <p class="m-0 price-item" data-itemtax="@item.TaxPercentage" data-itemprice="@item.ItemPrice"><span>₹</span>
+                        @item.ItemPrice</p>
+                    @if (item.IsFavorite == true)
+                    {
+                        <i class="fa-solid fa-heart heart-color like-btn"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-heart like-btn"></i>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="d-flex w-100">No item found</div>
+}
+
+<script>
+    $(document).ready(function () {
+
+        $(".like-btn").click(function (e) {
+            e.stopPropagation();
+            var itemid = $(this).closest(".item-card").data('itemid');
+            const categoryId = $(".nav-item.sidebar-menu-cat.selected-cat-menu").data('category-id');
+            if ($(this).hasClass("heart-color")) {
+                $(this).removeClass("heart-color fa-solid");
+                $(this).addClass("fa-regular");
+            } else {
+                $(this).removeClass("fa-regular");
+                $(this).addClass("heart-color fa-solid");
+            }
+
+            $.ajax({
+                url: '/OrderApp/ToggleFavorite',
+                type: 'POST',
+                data: {
+                    itemId: itemid
+                },
+                success: function (res) {
+                    
+                    console.log(res);
+                    if (res.toggle == true) {
+                        toastr.success("Add to favorite list successfully");
+                        loadItemsByCategory(categoryId, "")
+                    }
+                    else {
+                        toastr.success("Remove from favorite list successfully");
+                        setTimeout(function () {
+                            loadItemsByCategory(categoryId, "")
+                        }, 1000);
+                    }
+                }
+            });
+
+        })
+    })
+</script>

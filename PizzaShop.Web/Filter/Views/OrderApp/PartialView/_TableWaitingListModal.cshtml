@@ -1,0 +1,77 @@
+@model PizzaShop.Entity.ViewModel.WaitingListViewModel
+
+<div class="modal fade" id="AddWaitingUserModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Waiting Token Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-controller="OrderApp" asp-action="AddWaitingList">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" type="email" id="WaitingEmail" class="form-control hover-effect" placeholder="" onchange="check()">
+                        <label asp-for="Email">Email</label>
+                        <span class="text-danger" asp-validation-for="Email"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="UserName" type="text" class="form-control hover-effect" placeholder="">
+                        <label asp-for="UserName">Name</label>
+                        <span class="text-danger" asp-validation-for="UserName"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="PhoneNumber" type="number" class="form-control hover-effect" placeholder="">
+                        <label asp-for="PhoneNumber">Mobile Number</label>
+                        <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-floating mb-3 col">
+                            <input asp-for="NoOfPerson" type="number" class="form-control hover-effect" placeholder="">
+                            <label asp-for="NoOfPerson"> No. of Person</label>
+                            <span class="text-danger" asp-validation-for="NoOfPerson"></span>
+                        </div>
+                        <div class="form-floating col " style="width: 200px;">
+                            <select asp-for="SectionId" class="form-select" aria-label="Floating label select example" id="AddSectionSelectWaitingList">
+                            </select>
+                            <label asp-for="SectionId" for="AddSectionSelectWaitingList">Section*</label>
+                            <span class="text-danger" asp-validation-for="SectionId"></span>
+                        </div> 
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+
+    <script>
+        function check() {
+        var email = $("#WaitingEmail").val()
+
+        $.ajax({
+            url: '/OrderApp/CheckExistingUser',
+            type: 'GET',
+            data: { email: email },
+            success: function (data) {
+                
+                console.log(data);
+
+                $("#PhoneNumber").val(data.phoneNumber);
+                $("#UserName").val(data.userName);
+
+            }
+        });
+
+    }
+    </script>

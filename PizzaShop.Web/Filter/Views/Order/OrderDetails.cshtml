@@ -1,0 +1,252 @@
+@model PizzaShop.Entity.ViewModel.OrderSummaryViewModel;
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-12 offset-lg-2">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between my-3">
+                        <h2 class="text-primary">Order-Details</h2>
+                        <a asp-action="Orders" asp-controller="Order">
+                            <button type="button" class="btn btn-outline-primary">Back
+                            </button></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="p-3 rounded-3 shadow-lg bg-light d-sm-flex justify-content-between">
+                        <div class="">
+                            <div class="d-flex  align-items-center">
+                                <h3 class="m-0">Order Summary</h3>
+                                <span class="m-0 ms-1 mt-3 p-1 orderStatus">@Model.OrderStatus</span>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="text-nowrap"><span class="fw-bold">Invoice
+                                        No:</span>#DOM146569546565</span>
+                                <div>
+                                    <span class="text-nowrap"><span class="fw-bold">Paid on :</span> 20-08-2024</span>
+                                    <span class="text-nowrap ms-2"><span class="fw-bold">Placed on :</span>
+                                        @Model.CreatedAt</span>
+                                    <span class="text-nowrap ms-2"><span class="fw-bold">Modified on :</span>
+                                        @Model.ModifiedAt</span>
+                                    <span class="text-nowrap ms-2"><span class="fw-bold">Order Duration:
+                                        </span>00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ExportBtn mt-2 m-sm-0">
+                            <a asp-action="DownloadInvoice" asp-controller="Order" asp-route-id="@Model.OrderId"
+                                class="btn btn-primary d-flex p-2"><i class="fa-regular fa-file-pdf"><span
+                                        class="ps-2">Export</span></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mb-3 ">
+                <div class="col-12 col-sm-6">
+                    <div class="p-3 rounded-3 shadow-lg bg-light">
+                        <div class="my-3">
+                            <h3><i class="fa-solid fa-user fs-4"></i> Customer Details</h3>
+                        </div>
+                        <div class="d-flex flex-column ">
+                            <span class="text-nowrap">Name : @Model.CustomerName</span>
+                            <span class="text-nowrap">Phone : @Model.Phone</span>
+                            <span class="text-nowrap">No of person : @Model.NoOfPerson</span>
+                            <span class="text-nowrap">Email : @Model.Email</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="p-3 rounded-3 shadow-lg bg-light h-100">
+                        <div class="my-3">
+                            <h3><i class="fa-solid fa-table fs-4"></i> Table Details</h3>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="text-nowrap">Table : @Model.table.TableName</span>
+                            <span class="text-nowrap">Section : @Model.table.SectionName</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="p-3 rounded-3 shadow-lg bg-light">
+                        <h3>Order Items</h3>
+                        <div class="table-responsive">
+                            <table class="table table-light">
+                                <thead>
+                                    <tr>
+                                        <th class=" text-nowrap text-secondary">Sr.No</th>
+                                        <th class="text-center text-nowrap text-secondary">Item</th>
+                                        <th class="text-center text-nowrap text-secondary">Quantity</th>
+                                        <th class="text-center text-nowrap text-secondary">price</th>
+                                        <th class="text-end text-nowrap text-secondary">Total Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.items.Any())
+                                    {
+
+
+                                        var SrNo = 1;
+
+                                        foreach (var items in Model.items)
+                                        {
+                                            <tr>
+                                                <td class=" text-nowrap">
+                                                    @SrNo
+                                                </td>
+                                                <td class="text-center text-nowrap">
+                                                    <span>
+                                                        @items.ItemName
+                                                        <span id="TaxPercentage" hidden>@items.TaxPercentage</span>
+                                                    </span>
+                                                    <ul class="list-unstyled ms-3">
+                                                        @foreach (var modifier in items.modifier)
+                                                        {
+                                                            <li>@modifier.ModifierName</li>
+                                                        }
+                                                    </ul>
+                                                </td>
+                                                <td class="text-center text-nowrap">
+                                                    <div id="CategoryItemQuantity">@items.Quantity</div>
+                                                    @foreach (var modifier in items.modifier)
+                                                    {
+                                                        <div id="ModifierItemQuantity">@modifier.Quantity</div>
+                                                    }
+                                                </td>
+                                                <td class="text-center text-nowrap">
+                                                    <div id="CategoryItemRate">@items.Rate</div>
+                                                    @foreach (var modifier in items.modifier)
+                                                    {
+                                                        <div class="ModifierItemRate" id="ModifierItemRate-@modifier.ModifierName"
+                                                            data-modifiername="@modifier.ModifierName">@modifier.Rate</div>
+
+                                                    }
+                                                </td>
+                                                <td class="text-end text-nowrap">
+                                                    <div id="TotalCategoryItem"></div>
+                                                    <div id="TotalModifierItem"></div>
+                                                </td>
+                                            </tr>
+                                            SrNo++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="12" class="text-center">No Records Found</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        @if (Model.items.Any())
+                        {
+                            <div class="d-flex flex-column align-items-end justify-content-end mt-3">
+                                <h6>Sub Total : ₹ <span id="SubTotal"></span></h6>
+                                @foreach (var tax in Model.tax)
+                                {
+                                    <div class="Taxes">
+                                        <h6 id="TaxName">@tax.TaxName : <span class="TaxValueTotal" data-taxtype="@tax.TaxType"
+                                                data-taxvalue="@tax.TaxValue"></span></h6>
+                                    </div>
+                                }
+
+                                <div class="OtherTaxes">
+                                    <h6>Other: ₹ <span class="OtherTaxValue"></span></h6>
+                                </div>
+
+
+                                <h6>Total : <span id="TotalAmount"></span></h6>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var totalCategoryItem = 0;
+        var totalModifierItem = 0;
+        var subTotal = 0;
+        var totalTax = 0;
+        var taxPercentage = 0;
+
+
+        $(".table tbody tr").each(function () {
+            var categoryItemRate = parseFloat($(this).find("#CategoryItemRate").text());
+            var categoryItemQuantity = parseFloat($(this).find("#CategoryItemQuantity").text());
+            var totalCategoryItem = categoryItemRate * categoryItemQuantity;
+            $(this).find("#TotalCategoryItem").text(totalCategoryItem.toFixed(2));
+
+            var totalModifierItem = 0;
+            $(this).find(".ModifierItemRate").each(function () {
+
+                var modifierName = $(this).data("modifiername");
+                var modifierItemRate = parseFloat($(`#ModifierItemRate-${modifierName}`).html());
+                var modifierItemRate = modifierItemRate * categoryItemQuantity;
+                totalModifierItem += modifierItemRate;
+            });
+            $(this).find("#TotalModifierItem").text(totalModifierItem.toFixed(2));
+        });
+
+        var subTotal = 0;
+        $(".table tbody tr").each(function () {
+            var categoryItemTotal = parseFloat($(this).find("#TotalCategoryItem").text());
+            var modifierItemTotal = parseFloat($(this).find("#TotalModifierItem").text());
+            subTotal += categoryItemTotal + modifierItemTotal;
+        });
+        $("#SubTotal").text(subTotal.toFixed(2));
+
+        // Calculate tax values
+        $(".TaxValueTotal").each(function () {
+
+            var taxType = $(this).data("taxtype");
+            var taxValue = parseFloat($(this).data("taxvalue"));
+            var subTotal = parseFloat($("#SubTotal").text());
+            var taxAmount = 0;
+
+            if (taxType === "Percentage") {
+                taxAmount = (subTotal * taxValue) / 100;
+            } else if (taxType === "FlatAmount") {
+                taxAmount = taxValue;
+            }
+
+            totalTax += taxAmount;
+            $(this).text(taxAmount.toFixed(2));
+        });
+
+
+        // Calculate other taxes
+        var otherTaxTotal = 0;
+        $(".table tbody tr").each(function () {
+            var percentageTax = parseFloat($(this).find("#TaxPercentage").text()) || 0;
+            var categoryItemRate = parseFloat($(this).find("#CategoryItemRate").text()) || 0;
+            var categoryItemQuantity = parseFloat($(this).find("#CategoryItemQuantity").text()) || 0;
+            var otherTaxAmount = categoryItemQuantity * (categoryItemRate * percentageTax) / 100;
+
+            otherTaxTotal += otherTaxAmount;
+        });
+
+        // Display the total other tax
+        $(".OtherTaxValue").text(otherTaxTotal.toFixed(2));
+
+        // Add other tax to total tax
+        totalTax += otherTaxTotal;
+
+
+
+        // Calculate total amount
+        var totalAmount = subTotal + (totalTax);
+        $("#TotalAmount").text(totalAmount.toFixed(2));
+
+    });
+</script>
