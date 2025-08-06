@@ -1,0 +1,162 @@
+@model PizzaShop.Entity.ViewModel.ModifierListViewModel
+
+<div class="modal fade" id="addModifierItem" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="addItemForm" method="post">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Add New Modifier</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" aria-label="Floating label select example"
+                                                id="addModifierId">
+                                            </select>
+                                            <label for="addModifierId">Modifier Group*</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" asp-for="ModifierItemName"  id="addModifierItemName"
+                                                placeholder="Name*">
+                                            <label for="addModifierItemName">Name</label>
+                                            <span class="text-danger" asp-validation-for="ModifierItemName"></span>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="addModifierItemRate"
+                                                placeholder="Rate" >
+                                            <label for="addModifierItemRate">Rate*</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control"  id="addModifierQuantity"
+                                                placeholder="Quantity">
+                                            <label for="addModifierQuantity">Quantity*</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select class="form-select" aria-label="Floating label select example"
+                                                id="addModifierUnitId">
+                                            </select>
+                                            <label for="addModifierUnitId">Unit*</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" placeholder="Leave a comment here"
+                                            id="addModifierItemDescription" style="height: 100px"></textarea>
+                                        <label for="addModifierItemDescription">Description</label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-white border border-primary"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+                <input type="hidden" id="addItemId">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Menu/GetModifier',
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                var s = '<option value="-1">Please select Modifier</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].modifierGroupId + '">' + data[i].modifierName + '</option>'
+                }
+                $("#addModifierId").html(s);
+            }
+        });
+        $.ajax({
+            url: '/Menu/GetUnitList',
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                var s = '<option value="-1">Please select Unit</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].unitId + '">' + data[i].unitName + '</option>'
+                }
+                $("#addModifierUnitId").html(s);
+            }
+        });
+
+
+        $('#addItemForm').submit(function (e) {
+            e.preventDefault();
+
+
+            var modifierItemId = $('#addItemId').val();
+            var modifierGroupId = $('#addModifierId').val();
+            if(modifierGroupId == -1){
+                toastr.error("Select Modifier");
+                return;
+            }
+            var unitId = $('#addModifierUnitId').val();
+            var modifierItemName = $('#addModifierItemName').val();
+            var description = $('#addModifierItemDescription').val();
+            var quantity = $('#addModifierQuantity').val();
+            var rate = $('#addModifierItemRate').val();
+
+
+            var formData = {
+                ModifierItemId: modifierItemId,
+                ModifierGroupId: modifierGroupId,
+                ModifierItemName: modifierItemName,
+                Description: description,
+                Quantity: quantity,
+                UnitId: unitId,
+                Rate: rate,
+            };
+
+            // Send data to the server using AJAX
+            $.ajax({
+                url: '/Menu/AddModifierItem',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    // Handle success
+                    if (response.success == false) {
+                        toastr.error(response.message);
+                        return;
+                    } else {
+                        $("#editModifierUnitId").hide();
+                    }
+                    location.reload();
+                },
+                error: function () {
+                    toastr.error('Error updating item.');
+                }
+            });
+        });
+    });
+</script>

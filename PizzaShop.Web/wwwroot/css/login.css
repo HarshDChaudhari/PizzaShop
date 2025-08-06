@@ -1,0 +1,24 @@
+.main {
+    height: 100vh;
+}
+
+@media (max-width: 992px) {
+    #leftmain {
+        display: none;
+    }
+
+    #rightmain {
+        opacity: 0.9;
+        background-image: url(../images/dominos_background.jpg);
+        background-size: cover;
+        background-position: center;
+    }
+
+    #frm {
+        border-radius: 10px;
+        background-color: rgb(216, 247, 247);
+        opacity: 0.9;
+        margin: 0px 20px;
+        padding: 0px 20px;
+    }
+}

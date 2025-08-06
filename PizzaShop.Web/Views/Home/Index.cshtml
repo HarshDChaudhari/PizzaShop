@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    .hd-cl {
+    color: #0066A7;
+}
+</style>
+
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center pe-2">
+        <div class="fs-2 fw-semibold hd-cl">Dashboard</div>
+        <div class="">
+            <select id="dateDropDown" class="form-select" onchange="">
+                <option value="0">Last 7 Days</option>
+                <option value="1">Last 30 Days</option>
+                <option value="2" selected>Current Month</option>
+                <option value="3">Current Year</option>
+                <option value="4">All Time</option>
+            </select>
+        </div>
+    </div>
+    <div id="dashboard-view">
+    </div>
+</div>
+
+
+<script>
+    let revenueData;
+    let customerGrowthData;
+    let mylabels;
+    let maxRevenue;
+    let maxCustomerGrowth;
+
+    $(document).ready(function () {
+        GetDashboardView(2);
+        $("#dateDropDown").on("change", function () {
+            GetDashboardView($("#dateDropDown").val());
+        })
+    });
+
+
+    function GetDashboardView(dateRange) {
+        
+        $.ajax({
+            url: '/Home/GetDashboard',
+            type: 'GET',
+            data: { dateRange: dateRange },
+            success: function (response) {
+                
+                $('#dashboard-view').html(response);
+                console.log(dateRange);
+                fetchRevenueData(dateRange);
+            }
+        });
+    }
+</script>

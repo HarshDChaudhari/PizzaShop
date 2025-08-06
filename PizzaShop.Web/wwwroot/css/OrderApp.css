@@ -1,0 +1,139 @@
+.orderAppBtns{
+    border: 1px solid #ced4da;
+    border-radius: 500px;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #495057;
+}
+
+
+@media (max-width: 576px) {
+    .header {
+        height: auto;
+        padding: 10px;
+    }
+    .header .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    .header .dropdown-menu {
+        width: 100%;
+    }
+    .dropdown-toggle img {
+        width: 40px;
+        height: 40px;
+    }
+    .dropdown-menu li {
+        padding: 8px 10px;
+    }
+    .dropdown-menu a {
+        font-size: 14px;
+    }
+    .border {
+        padding: 6px;
+        font-size: 14px;
+    }
+    .fs-4 {
+        font-size: 18px;
+    }
+    .container-fluid {
+        padding: 15px;
+    }
+    .text-white {
+        font-size: 14px;
+    }
+    #logo-section span {
+        display: none;
+    }
+    .dropdown .NameOrderApp {
+        display: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .header .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    .header .dropdown-menu {
+        width: 100%;
+    }
+    .dropdown-toggle img {
+        width: 35px;
+        height: 35px;
+    }
+    .dropdown-menu li {
+        padding: 6px 8px;
+    }
+    .dropdown-menu a {
+        font-size: 13px;
+    }
+    .border {
+        padding: 5px;
+        font-size: 12px;
+    }
+    .fs-4 {
+        font-size: 16px;
+    }
+    .container-fluid {
+        padding: 10px;
+    }
+    .text-white {
+        font-size: 13px;
+    }
+    .d-flex .gap-2 {
+        gap: 5px;
+    }
+    #logo-section {
+        justify-content: center;
+    }
+    #logo-section span {
+        display: none;
+    }
+    .dropdown-menu li {
+        padding: 8px 10px;
+    }
+    /* Hide some menu items for small screens */
+    .header .dropdown-menu .NameOrderApp {
+        display: none;
+    }
+    .dropdown-menu a {
+        font-size: 12px;
+    }
+    .border {
+        padding: 5px;
+        font-size: 12px;
+    }
+    .header .dropdown-menu {
+        padding: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    #logo-section span {
+        display: none;
+    }
+
+    .dropdown-toggle img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .dropdown-menu li {
+        padding: 10px 15px;
+    }
+
+    .dropdown-menu a {
+        font-size: 16px;
+    }
+
+    .dropdown .NameOrderApp {
+        display: none;
+        
+    }
+
+    .orderAppBtns {
+        border: none;
+        gap: 5px;
+    }
+}

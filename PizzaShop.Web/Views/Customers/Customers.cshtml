@@ -1,0 +1,124 @@
+@{
+    ViewData["Title"] = "Customer Page";
+}
+<div class="d-sm-flex justify-content-between align-items-center ms-3 pt-4">
+    <h2 class="text-header mb-3 hd-cl">Customers</h2>
+    <div class="d-flex gap-2 me-2 justify-content-end align-items-center col-md-auto ">
+        <div class="input-group ">
+            <div id="has-search" class="w-100">
+                <span class="fa fa-search form-control-feedback"></span>
+                <input class="form-control " type="search" placeholder="Search" name="search" id="searchCustomerList"
+                    aria-label="Search">
+            </div>
+        </div>
+
+        <select id="customer-time" class="form-select " aria-label="Default select example">
+            <option selected value="">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="month">Current Month</option>
+        </select>
+
+        <button id="export-Customer" type="button" onclick="exportAllCustomer()"
+            class="btn btn-primary py-2 px-3 text-decoration-none rounded-1 bg-header text-white ms-1 text-nowrap me-3 d-flex justify-content-center align-items-center gap-1"
+            style="height: 35px;">
+            <i class="fa-solid fa-file-export"></i>
+            <span> Export</span>
+        </button>
+    </div>
+</div>
+
+<div id="customer-partial" class="ms-3 me-4 table-responsive bg-white shadow">
+</div>
+
+<script>
+    var currentPage = 1;
+    var pageSize = 5;
+    var search = "";
+    var customerTime = '';
+    var sortCustomerColumn = "";
+    var sortCustomerOrder = "";
+    const sortStates = [];
+
+    $('#customer-time').on('change', function () {
+        customerTime = $(this).val();
+        fetchCustomer(currentPage, pageSize, search, customerTime,sortCustomerColumn, sortCustomerOrder);
+    });
+
+        $('#searchCustomerList').on('search', function() {
+        search = $(this).val();  
+        fetchCustomer(currentPage, pageSize, search, customerTime,sortCustomerColumn, sortCustomerOrder);
+    });
+
+    function fetchCustomer(currentPage, pageSize, search, customerTime,sortCustomerColumn, sortCustomerOrder) {
+        $.ajax({
+            url: '/Customers/GetCustomerDetails',
+            type: 'GET',
+            data: {
+                page: currentPage,
+                pageSize: pageSize,
+                search: search,
+                customerTime: customerTime,
+                sortCustomerColumn: sortCustomerColumn,
+                sortCustomerOrder: sortCustomerOrder
+            },
+            success: function (response) {
+                $("#customer-partial").html(response);
+            },
+            error: function (xhr, status, error) {
+                $('#customer-partial').html('<tr><td colspan="4">Error loading items.</td></tr>');
+            }
+        });
+    }
+
+
+     function exportAllCustomer() {
+              // Get filter values
+
+              const CustomerDates = $('#customer-time').val();
+              const searchCustomer = $('#searchCustomerList').val();
+             
+              // Prepare loading state
+              const exportBtn = $('#export-Customer');
+              exportBtn.prop('disabled', true);
+              exportBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...');
+              // AJAX call
+              $.ajax({
+                     url: "ExportAllCustomer",
+                     type: 'GET',
+                     data: {
+                            time: CustomerDates,
+                            search: searchCustomer,
+                     },
+                     xhrFields: {
+                            responseType: 'blob'
+                     },
+                     success: function (data, status, xhr) {
+                            // Create download link
+                            const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            const downloadUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = 'CustomerExport.xlsx';
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Cleanup
+                            setTimeout(function () {
+                                   document.body.removeChild(a);
+                                   window.URL.revokeObjectURL(downloadUrl);
+                            }, 100);
+                     },
+                     complete: function () {
+                            // Reset button state
+                            exportBtn.prop('disabled', false);
+                            exportBtn.html('<img src="/images/icons/export-white.png" width="24px"><span> Export</span>');
+                     }
+              });
+       }
+
+
+    $(document).ready(function () {
+        fetchCustomer(currentPage, pageSize, search, customerTime,sortCustomerColumn, sortCustomerOrder);
+    });   
+</script>

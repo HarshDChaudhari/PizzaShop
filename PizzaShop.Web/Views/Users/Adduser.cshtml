@@ -1,0 +1,244 @@
+@{
+    ViewData["Title"] = "Add User Page";
+}
+
+@model PizzaShop.Entity.ViewModel.AdduserViewModel
+
+<div class="row ">
+    <div class="col-lg-12 d-flex justify-content-between ms-3   ">
+        <div>
+            <h2 class="text-primary">Add New User</h2>
+        </div>
+        <div>
+            <div class="input-group">
+                <div class="d-flex align-items-center">
+                    <div class="border d-flex gap-3">
+                        <a asp-controller="Users" asp-action="Users" class="btn" role="button">
+                            <i class="bi bi-chevron-left"></i>
+                            <span>Back</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form enctype="multipart/form-data" asp-action="AddUser" asp-controller="Users">
+        <div class=" mt-3 shadow bg-white mx-5 p-4 rounded">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="fname" asp-for="FirstName" placeholder="FirstName">
+                        <label asp-for="FirstName">FirstName</label>
+                        <span class="text-danger" asp-validation-for="FirstName"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="LastName" id="lname" placeholder="LastName">
+                        <label asp-for="LastName">LastName</label>
+                        <span class="text-danger" asp-validation-for="LastName"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="Username" id="uname" placeholder="Username">
+                        <label asp-for="Username">Username</label>
+                        <span class="text-danger" asp-validation-for="Username"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating">
+                        <select class="form-select" id="roleSelect" aria-label="Floating label select example"
+                            asp-for="Role">
+                            <option selected>Select Role</option>
+                        </select>
+                        <label for="roleSelect">Role</label>
+                        <span class="text-danger" asp-validation-for="Role"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" asp-for="Email" id="floatingInput"
+                            placeholder="name@example.com">
+                        <label asp-for="Email">Email address</label>
+                        <span class="text-danger" asp-validation-for="Email"></span>
+                    </div>
+
+                </div>
+                <div class="col-6">
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                        <label for="floatingPassword">Password</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="rounded col-12 form-control pt-4 pb-4 d-flex align-items-center justify-content-center border border-dotted border-5">
+                        <div class="form-control ">
+                            <label for="AddUserPic"
+                                class="form-label d-flex gap-2 justify-content-center align-items-center pt-3 ">
+                                <img src="~/images/Default_pfp.svg.png" height="50px" width="50px"
+                                    id="image-view-AddUser" alt="">
+                                <h3><i class="bi bi-cloud-arrow-up-fill"></i>
+                                </h3>
+                                <span class="pb-2">
+                                    Drag and Drop or Browse Files
+                                </span>
+                            </label>
+                            <input type="file" class="form-control d-none" id="AddUserPic">
+                        </div>
+                        <span class="text-danger" id="ImgUrl"></span>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="countrySelect" aria-label="Floating label select example"
+                            asp-for="Country">
+                            <option selected>Select country</option>
+                        </select>
+                        <label for="countrySelect">Country</label>
+                        <span class="text-danger" asp-validation-for="Country"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="stateSelect" aria-label="Floating label select example"
+                            asp-for="State" disabled>
+                            <option selected>Select state</option>
+                        </select>
+                        <label for="stateSelect">State</label>
+                        <span class="text-danger" asp-validation-for="State"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select" id="citySelect" aria-label="Floating label select example"
+                            asp-for="City" disabled>
+                            <option selected>Select city</option>
+                        </select>
+                        <label for="citySelect">City</label>
+                        <span class="text-danger" asp-validation-for="City"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="ZipCode" placeholder="Zipcode">
+                        <label asp-for="ZipCode">Zipcode</label>
+                        <span class="text-danger" asp-validation-for="ZipCode"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="Address" placeholder="Address">
+                        <label asp-for="Address">Address</label>
+                        <span class="text-danger" asp-validation-for="Address"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" asp-for="Phone" placeholder="Phone">
+                        <label asp-for="Phone">Phone</label>
+                        <span class="text-danger" asp-validation-for="Phone"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="p-2 rounded bg-primary text-white">Create User</button>
+                <button class="p-2" asp-controller="Users" asp-action="Users">Cancel</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#AddUserPic").change(function () {
+            const file = this.files[0];
+            if (file) {
+                const fileName = file.name.toLowerCase();
+                const validExtensions = ['.jpg', '.jpeg', '.png'];
+
+                // Check if the file has a valid extension
+                const isValidFile = validExtensions.some(extension => fileName.endsWith(extension));
+
+                if (isValidFile) {
+                    const fileReader = new FileReader();
+                    fileReader.onload = function (event) {
+                        $("#image-view-AddUser").attr("src", event.target.result);
+                    };
+                    fileReader.readAsDataURL(file);
+                } else {
+                    toastr.error('Please upload a valid image file (.jpg, .jpeg, .png).');
+                }
+            }
+        });
+
+        $.ajax({
+            url: '/Users/GetRoles',
+            type: 'GET',
+            success: function (data) {
+
+                console.log(data);
+                $.each(data, function (index, Role) {
+                    $('#roleSelect').append(`<option value="${Role.roleId}">${Role.roleName}</option>`);
+                });
+            }
+        });
+        $.ajax({
+            url: '/Users/GetCountries',
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                $.each(data, function (index, Country) {
+                    $('#countrySelect').append(`<option value="${Country.countryId}">${Country.countryName}</option>`);
+                });
+            }
+        });
+
+        $('#countrySelect').change(function () {
+            var countryId = $(this).val();
+            $('#stateSelect').empty().append('<option selected>Select state</option>').prop('disabled', false);
+
+            $.ajax({
+                url: '/Users/GetStates',
+                type: 'GET',
+                data: { CountryId: countryId },
+                success: function (data) {
+                    console.log(data);
+                    $.each(data, function (index, State) {
+                        $('#stateSelect').append(`<option value="${State.stateId}">${State.stateName}</option>`);
+                    });
+                },
+                error: function (response) {
+
+                    console.log(response);
+                }
+            });
+        });
+
+        $('#stateSelect').change(function () {
+            var stateId = $(this).val();
+            $('#citySelect').empty().append('<option selected>Select city</option>').prop('disabled', false);
+
+            $.ajax({
+                url: '/Users/GetCities',
+                type: 'GET',
+                data: { stateId: stateId },
+                success: function (data) {
+                    $.each(data, function (index, City) {
+                        $('#citySelect').append(`<option value="${City.cityId}">${City.cityName}</option>`);
+                    });
+                }
+            });
+        });
+    });
+</script>
